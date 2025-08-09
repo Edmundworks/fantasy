@@ -54,55 +54,9 @@ Building a Next.js 15 fantasy sports application with TypeScript, Drizzle ORM, P
   - [ ] Create seed data for development
   - [ ] Add production data import scripts
 
-## Frontend Development
+## Frontend Development TODO
 
-### Core Components
-- [ ] **Layout Components**
-  - [ ] Header/Navigation
-  - [ ] Sidebar
-  - [ ] Footer
-  - [ ] Loading states
-- [ ] **Authentication Components**
-  - [ ] Login form
-  - [ ] Registration form
-  - [ ] Password reset form
-- [ ] **Team Management**
-  - [ ] Team creation form
-  - [ ] Team selection interface
-  - [ ] Team overview dashboard
-- [ ] **Player Management**
-  - [ ] Player search and filters
-  - [ ] Player cards
-  - [ ] Player stats display
-  - [ ] Add/remove player interface
-- [ ] **Gameweek Interface**
-  - [ ] Gameweek overview
-  - [ ] Match fixtures display
-  - [ ] Live scores (future)
-- [ ] **Dashboard**
-  - [ ] User's team overview
-  - [ ] Points calculation
-  - [ ] League standings
-  - [ ] Performance charts
-
-### Pages
-- [ ] **Authentication Pages**
-  - [ ] /login
-  - [ ] /register
-  - [ ] /forgot-password
-- [ ] **Main App Pages**
-  - [ ] /dashboard - Main user dashboard
-  - [ ] /teams - Team management
-  - [ ] /players - Player browser
-  - [ ] /gameweeks - Gameweek overview
-  - [ ] /matches - Match fixtures
-  - [ ] /leagues - League management
-- [ ] **Admin Pages** (future)
-  - [ ] /admin/teams
-  - [ ] /admin/players
-  - [ ] /admin/matches
-
-## Data Integration
+### Pages TODO
 
 
 
