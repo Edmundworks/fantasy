@@ -1,0 +1,203 @@
+# Cursor Rules for Fantasy Project
+
+## Project Overview
+This is a Next.js 15 fantasy sports application using TypeScript, Drizzle ORM, PostgreSQL, and Tailwind CSS.
+
+## Project Planning
+- **Plan File**: `plan.md` - Contains detailed project roadmap, todos, and progress tracking
+- **Always check plan.md** before starting new work to understand current priorities
+- **Update plan.md** when completing tasks by changing `[ ]` to `[x]`
+- **Add new todos** to plan.md as they are identified during development
+- **Reference plan.md** for context about what features are planned and their current status
+
+## Technology Stack
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript (strict mode enabled)
+- **Database**: PostgreSQL with Drizzle ORM
+- **Styling**: Tailwind CSS v4
+- **Package Manager**: npm
+- **Development**: Turbopack for faster builds
+
+## Code Style & Conventions
+
+### TypeScript
+- Use strict TypeScript with `noImplicitAny`, `strictNullChecks`, etc.
+- Prefer explicit types over `any`
+- Use interfaces for object shapes, types for unions/primitives
+- Always type function parameters and return values
+- Use `@/*` path alias for imports from `src/` directory
+
+### React & Next.js
+- Use functional components with hooks
+- Prefer `use client` directive only when necessary
+- Use Next.js App Router patterns (page.tsx, layout.tsx, etc.)
+- Implement proper error boundaries
+- Use Next.js Image component for optimized images
+- Follow React Server Components best practices
+
+### Database & Drizzle
+- Define schemas in `src/db/schema.ts`
+- Use proper PostgreSQL data types (uuid, varchar, integer, etc.)
+- Implement proper relationships between tables
+- Use migrations for schema changes
+- Follow naming conventions: snake_case for database, camelCase for TypeScript
+- When adding new tables, include proper indexes and constraints
+- Always add `created_at` and `updated_at` timestamp fields
+- Use UUIDs for primary keys with `uuid().primaryKey().defaultRandom()`
+- Define foreign key relationships with `references()`
+- Add proper validation constraints (e.g., `notNull()`, `unique()`)
+- Use appropriate field types: `varchar(n)` for short strings, `text` for long content
+- Consider adding soft delete fields (`deleted_at`) for important entities
+
+### Styling
+- Use Tailwind CSS utility classes
+- Prefer utility-first approach over custom CSS
+- Use CSS variables for theme values
+- Implement responsive design with Tailwind breakpoints
+- Keep components mobile-first
+
+## File Structure
+```
+src/
+├── app/                 # Next.js App Router pages
+├── components/          # Reusable React components
+├── db/                  # Database schema and utilities
+├── lib/                 # Utility functions and helpers
+├── types/               # TypeScript type definitions
+└── hooks/               # Custom React hooks
+```
+
+## Naming Conventions
+- **Files**: kebab-case for pages, PascalCase for components
+- **Components**: PascalCase (e.g., `PlayerCard.tsx`)
+- **Functions**: camelCase (e.g., `getPlayerStats`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_PLAYERS`)
+- **Types/Interfaces**: PascalCase (e.g., `PlayerStats`)
+
+## Best Practices
+
+### Performance
+- Use React.memo for expensive components
+- Implement proper loading states
+- Use Next.js caching strategies
+- Optimize database queries with proper indexing
+- Implement pagination for large datasets
+
+### Security
+- Validate all user inputs
+- Use environment variables for sensitive data
+- Implement proper authentication/authorization
+- Sanitize database queries (Drizzle handles this)
+- Use HTTPS in production
+
+### Testing
+- Write unit tests for utility functions
+- Test database operations
+- Test React components with user interactions
+- Use proper test data and mocks
+
+### Error Handling
+- Implement proper error boundaries
+- Use try-catch blocks for async operations
+- Provide meaningful error messages
+- Log errors appropriately
+
+### Accessibility
+- Use semantic HTML elements
+- Implement proper ARIA labels
+- Ensure keyboard navigation
+- Test with screen readers
+- Maintain proper color contrast
+
+## Database Schema Guidelines
+- Use UUIDs for primary keys with `uuid().primaryKey().defaultRandom()`
+- Implement proper foreign key relationships with `references()`
+- Add indexes for frequently queried columns
+- Use appropriate data types (avoid TEXT for short strings)
+- Add created_at/updated_at timestamps
+- Implement soft deletes where appropriate
+- Follow this pattern for new tables:
+  ```typescript
+  export const tableName = pgTable('table_name', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 255 }).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  });
+  ```
+- For fantasy sports, consider these core entities:
+  - `teams` - Football teams
+  - `players` - Individual players with team relationships
+  - `seasons` - Competition seasons
+  - `gameweeks` - Weekly game periods
+  - `matches` - Individual games between teams
+  - `player_stats` - Player performance data
+  - `user_teams` - User's fantasy teams
+  - `user_players` - Players in user's teams
+
+## Component Guidelines
+- Keep components small and focused
+- Use composition over inheritance
+- Implement proper prop validation
+- Use TypeScript for prop types
+- Follow single responsibility principle
+
+## State Management
+- Use React hooks for local state
+- Consider Zustand for global state if needed
+- Use React Query for server state
+- Implement optimistic updates where appropriate
+
+## API Design
+- Use RESTful conventions
+- Implement proper HTTP status codes
+- Use consistent response formats
+- Add proper error handling
+- Implement rate limiting
+
+## Development Workflow
+- Use meaningful commit messages
+- Implement proper branching strategy
+- Review code before merging
+- Keep dependencies updated
+- Use linting and formatting tools
+- **Always consult plan.md** before starting new features
+- **Update plan.md** when completing tasks or identifying new requirements
+- **Track progress** in plan.md's progress tracking section
+
+## Database Migration Workflow
+- When modifying schema.ts, generate migrations with: `npx drizzle-kit generate`
+- Review generated migrations in `src/db/migrations/`
+- Apply migrations with: `npx drizzle-kit migrate`
+- Test migrations on development database first
+- Always backup production database before applying migrations
+- Use `npx drizzle-kit studio` to inspect database during development
+
+## Fantasy Sports Specific
+- Design for real-time updates
+- Implement proper scoring calculations
+- Handle player injuries and transfers
+- Consider timezone handling
+- Implement proper gameweek management
+- Design for mobile-first experience
+
+## Code Quality
+- Write self-documenting code
+- Add JSDoc comments for complex functions
+- Use meaningful variable names
+- Keep functions small and focused
+- Avoid code duplication
+- Follow DRY principle
+
+## Environment Setup
+- Use .env.local for local development
+- Never commit sensitive data
+- Use different databases for dev/staging/prod
+- Implement proper logging levels
+
+## Deployment
+- Use Vercel for Next.js deployment
+- Set up proper CI/CD pipeline
+- Implement database migrations
+- Use environment-specific configurations
+- Monitor performance and errors 
