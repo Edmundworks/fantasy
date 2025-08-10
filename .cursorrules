@@ -48,6 +48,12 @@ This is a Next.js 15 fantasy sports application using TypeScript, Drizzle ORM, P
 - Add proper validation constraints (e.g., `notNull()`, `unique()`)
 - Use appropriate field types: `varchar(n)` for short strings, `text` for long content
 - Consider adding soft delete fields (`deleted_at`) for important entities
+- we're using Supabase
+- to test DB
+DATABASE_URL=postgresql://postgres.smqlcqtbqnwhmkikigqb:j2XUqsqsEH1Mf4CO@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require npm run test-db
+
+- to run migrations
+DATABASE_URL=postgresql://postgres.smqlcqtbqnwhmkikigqb:j2XUqsqsEH1Mf4CO@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require npx drizzle-kit migrate
 
 ### Styling
 - Use Tailwind CSS utility classes
