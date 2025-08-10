@@ -117,6 +117,36 @@ class NPXGExtractor:
                 })
         
         return match_list
+
+    def compute_resume_index(self, matches: List[Dict], existing_results: Dict) -> int:
+        """Determine the next match index to process based on existing all_matches_npxg.json.
+
+        Strategy:
+        - If result keys look like fixture_{i}, resume at max(i)+1
+        - Otherwise, linear scan from start until we hit the first match id not present in results
+        """
+        if not existing_results:
+            return 0
+
+        # Fast path for fixture_{i}
+        max_idx = -1
+        for key in existing_results.keys():
+            if isinstance(key, str) and key.startswith("fixture_"):
+                try:
+                    idx = int(key.split("_")[-1])
+                    if idx > max_idx:
+                        max_idx = idx
+                except ValueError:
+                    continue
+        if max_idx >= 0:
+            return max_idx + 1
+
+        # Fallback: find first index whose match id is not in results
+        done_ids = set(existing_results.keys())
+        for i, m in enumerate(matches):
+            if m.get('id') not in done_ids:
+                return i
+        return len(matches)
     
     async def extract_single_match(self, match_url: str) -> Optional[Dict]:
         """Extract npxG for a single match with enhanced anti-detection"""
@@ -292,15 +322,20 @@ IMPORTANT:
         matches = self.get_matches_from_fixtures()
         total_matches = len(matches)
         
+        # Compute resume point from all_matches_npxg.json (authoritative)
+        resume_index = self.compute_resume_index(matches, results)
+        progress['processed_count'] = resume_index
+        self.save_progress(progress)
+
         print(f"📊 Found {total_matches} matches to process")
-        print(f"📋 Resuming from match #{progress['processed_count']}")
+        print(f"📋 Resuming from match #{resume_index}")
         
         failures = self.load_failures()
         failure_streak = 0
         long_rest_every = random.randint(12, 20)
 
         for i, match in enumerate(matches):
-            if i < progress['processed_count']:
+            if i < resume_index:
                 continue  # Skip already processed matches
             
             match_id = match['id']
@@ -339,6 +374,7 @@ IMPORTANT:
                 
                 # Update progress
                 progress['processed_count'] = i + 1
+                resume_index = progress['processed_count']
                 progress['last_processed_url'] = match_url
                 progress['last_processed_at'] = time.time()
                 
