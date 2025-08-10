@@ -9,9 +9,6 @@ import json
 import time
 import random
 import shutil
-import re
-import requests
-from bs4 import BeautifulSoup, Comment
 from dotenv import load_dotenv
 from typing import Dict, List, Optional
 from pydantic import BaseModel
@@ -40,9 +37,6 @@ class NPXGExtractor:
         self.failures_file = 'npxg_failures.json'
         self.api_key = os.getenv('OPENAI_API_KEY')
         self.max_failure_streak = 3  # auto-stop after this many consecutive failures
-        # Batch controls (short cooldown as requested)
-        self.batch_size = int(os.getenv('BATCH_SIZE', '6'))
-        self.cooldown_sec = int(os.getenv('COOLDOWN_SEC', '150'))  # ~2.5 minutes default
         
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
@@ -153,118 +147,6 @@ class NPXGExtractor:
             if m.get('id') not in done_ids:
                 return i
         return len(matches)
-
-    # ---------- Requests-based primary extractor ----------
-    def _extract_teams_from_title(self, soup: BeautifulSoup) -> Optional[List[str]]:
-        h1 = soup.find('h1')
-        if not h1:
-            return None
-        text = ' '.join(h1.get_text(strip=True).split())
-        # Expected: "Team A vs. Team B Match Report – ..."
-        # Normalize dash variations
-        text = text.replace('—', '-').replace('–', '-')
-        m = re.search(r'^(.*?)\s+vs\.\s+(.*?)\s+(Match Report|Preview|Head-to-Head)', text, flags=re.IGNORECASE)
-        if m:
-            return [m.group(1).strip(), m.group(2).strip()]
-        return None
-
-    def _parse_npxg_from_html(self, html: str) -> Optional[Dict[str, str]]:
-        soup = BeautifulSoup(html, 'html.parser')
-        # Remove commented tables (FBref often wraps tables in comments)
-        for c in soup.find_all(string=lambda t: isinstance(t, Comment)):
-            try:
-                frag = BeautifulSoup(c, 'html.parser')
-                c.replace_with(frag)
-            except Exception:
-                pass
-
-        teams_from_title = self._extract_teams_from_title(soup) or [None, None]
-
-        # Find summary tables with id like stats_*_summary (two: home then away in page order)
-        tables = []
-        for tbl in soup.find_all('table'):
-            tid = tbl.get('id') or ''
-            if re.match(r'^stats_.*_summary$', tid):
-                tables.append(tbl)
-        if len(tables) < 2:
-            # Fallback: look for tables with summary class
-            for tbl in soup.find_all('table'):
-                cls = ' '.join(tbl.get('class', []))
-                if 'summary' in cls:
-                    tables.append(tbl)
-            tables = tables[:2]
-        if len(tables) < 2:
-            return None
-
-        def read_team_name_for_table(table: BeautifulSoup) -> Optional[str]:
-            # The heading preceding the table often contains "<Team> Player Stats"
-            # Look backwards for nearest h2/h3
-            prev = table
-            for _ in range(8):
-                prev = prev.find_previous(['h2', 'h3'])
-                if not prev:
-                    break
-                t = prev.get_text(strip=True)
-                m = re.match(r'^(.*?)\s+Player Stats', t, flags=re.IGNORECASE)
-                if m:
-                    return m.group(1).strip()
-            return None
-
-        def read_npxg(table: BeautifulSoup) -> Optional[str]:
-            tfoot = table.find('tfoot')
-            if not tfoot:
-                return None
-            # Prefer data-stat="npxg"
-            cell = tfoot.find('td', attrs={'data-stat': 'npxg'})
-            if not cell:
-                # Try last row scanning
-                last_row = tfoot.find('tr')
-                if not last_row:
-                    return None
-                # Find column by header mapping
-                cells = last_row.find_all(['td', 'th'])
-                for c in cells:
-                    if (c.get('data-stat') or '').lower() == 'npxg':
-                        cell = c
-                        break
-            if not cell:
-                return None
-            val = cell.get_text(strip=True)
-            return val if val else None
-
-        first_tbl, second_tbl = tables[0], tables[1]
-        home_name = read_team_name_for_table(first_tbl) or teams_from_title[0]
-        away_name = read_team_name_for_table(second_tbl) or teams_from_title[1]
-        home_npxg = read_npxg(first_tbl)
-        away_npxg = read_npxg(second_tbl)
-
-        if not (home_name and away_name and home_npxg is not None and away_npxg is not None):
-            return None
-
-        return {
-            'home_team_npxg': home_npxg,
-            'away_team_npxg': away_npxg,
-            'home_team_name': home_name,
-            'away_team_name': away_name,
-        }
-
-    def fetch_npxg_via_requests(self, match_url: str) -> Optional[Dict[str, str]]:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-            'Referer': 'https://fbref.com/',
-        }
-        for attempt in range(3):
-            try:
-                resp = requests.get(match_url, headers=headers, timeout=30)
-                if resp.status_code == 200 and resp.text:
-                    parsed = self._parse_npxg_from_html(resp.text)
-                    if parsed:
-                        return parsed
-                time.sleep(1.5 * (attempt + 1))
-            except Exception:
-                time.sleep(1.5 * (attempt + 1))
-        return None
     
     async def extract_single_match(self, match_url: str) -> Optional[Dict]:
         """Extract npxG for a single match with enhanced anti-detection"""
@@ -447,7 +329,6 @@ IMPORTANT:
 
         print(f"📊 Found {total_matches} matches to process")
         print(f"📋 Resuming from match #{resume_index}")
-        start_idx = resume_index  # keep a stable start index for batch math
         
         failures = self.load_failures()
         failure_streak = 0
@@ -478,11 +359,8 @@ IMPORTANT:
                 print("⏱️  Extended pause for anti-detection...")
                 await asyncio.sleep(random.uniform(12, 25))
             
-            # Primary path: requests-based parser (avoids browser blocking)
-            match_data = self.fetch_npxg_via_requests(match_url)
-            # Fallback to browser-use agent only if requests path failed
-            if not match_data:
-                match_data = await self.extract_single_match(match_url)
+            # Extract npxG for this match
+            match_data = await self.extract_single_match(match_url)
             
             if match_data:
                 # Add metadata
@@ -496,6 +374,7 @@ IMPORTANT:
                 
                 # Update progress
                 progress['processed_count'] = i + 1
+                resume_index = progress['processed_count']
                 progress['last_processed_url'] = match_url
                 progress['last_processed_at'] = time.time()
                 
@@ -520,17 +399,15 @@ IMPORTANT:
                     print(f"🛑 Stopping early after {failure_streak} consecutive failures (safety cutoff)")
                     break
             
-            # Anti-detection pause between matches (7-18 seconds) + occasional short cooldown between small batches
+            # Anti-detection pause between matches (7-18 seconds) + occasional long rest
             if i < total_matches - 1:  # Don't pause after the last match
-                # Short per-match jitter
-                pause_time = random.uniform(7, 18)
+                if (i + 1) % long_rest_every == 0:
+                    pause_time = random.uniform(35, 60)
+                    print(f"⏱️  Long rest: {pause_time:.1f}s (anti-detection)...")
+                else:
+                    pause_time = random.uniform(7, 18)
                 print(f"⏱️  Anti-detection pause: {pause_time:.1f}s...")
                 await asyncio.sleep(pause_time)
-                # Brief cooldown after each full batch (based on stable start index)
-                batch_pos = (i - start_idx + 1)
-                if batch_pos > 0 and (batch_pos % self.batch_size == 0):
-                    print(f"⏸️  Batch cooldown for {self.cooldown_sec}s...")
-                    await asyncio.sleep(self.cooldown_sec)
         
         print(f"\n🎉 Completed processing all {total_matches} matches!")
         print(f"📊 Successfully extracted: {len(results)} matches")
