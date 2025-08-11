@@ -21,16 +21,7 @@ export const seasons = pgTable('seasons', {
   seasonIdx: index('seasons_season_idx').on(table.season),
 }));
 
-// Gameweeks table
-export const gameweeks = pgTable('gameweeks', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  seasonId: uuid('season_id').notNull().references(() => seasons.id),
-  gameweek: integer('gameweek').notNull(), // number
-  created_at: timestamp('created_at').defaultNow().notNull(),
-  updated_at: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => ({
-  seasonGameweekIdx: index('gameweeks_season_gameweek_idx').on(table.seasonId, table.gameweek),
-}));
+// Gameweeks table removed - using optional gameweek field in matches instead
 
 // Players table
 export const players = pgTable('players', {
@@ -50,7 +41,7 @@ export const players = pgTable('players', {
 export const matches = pgTable('matches', {
   id: uuid('id').primaryKey().defaultRandom(),
   seasonId: uuid('season_id').notNull().references(() => seasons.id),
-  gameweekId: uuid('gameweek_id').notNull().references(() => gameweeks.id),
+  gameweek: integer('gameweek'), // optional gameweek number
   homeTeamId: uuid('home_team_id').notNull().references(() => teams.id),
   homeTeamName: varchar('home_team_name', { length: 255 }).notNull(),
   homeTeamNonPenaltyExpectedGoals: decimal('home_team_non_penalty_expected_goals', { precision: 4, scale: 3 }),
@@ -59,10 +50,12 @@ export const matches = pgTable('matches', {
   awayTeamName: varchar('away_team_name', { length: 255 }).notNull(),
   awayTeamNonPenaltyExpectedGoals: decimal('away_team_non_penalty_expected_goals', { precision: 4, scale: 3 }),
   awayTeamExpectedClean: boolean('away_team_expected_clean').default(false),
+  matchReportUrl: varchar('match_report_url', { length: 500 }),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
-  seasonGameweekIdx: index('matches_season_gameweek_idx').on(table.seasonId, table.gameweekId),
+  seasonIdx: index('matches_season_idx').on(table.seasonId),
+  seasonGameweekIdx: index('matches_season_gameweek_idx').on(table.seasonId, table.gameweek),
   homeTeamIdx: index('matches_home_team_idx').on(table.homeTeamId),
   awayTeamIdx: index('matches_away_team_idx').on(table.awayTeamId),
 }));
@@ -71,7 +64,6 @@ export const matches = pgTable('matches', {
 export const appearances = pgTable('appearances', {
   id: uuid('id').primaryKey().defaultRandom(),
   seasonId: uuid('season_id').notNull().references(() => seasons.id),
-  gameweekId: uuid('gameweek_id').notNull().references(() => gameweeks.id),
   matchId: uuid('match_id').notNull().references(() => matches.id),
   teamId: uuid('team_id').notNull().references(() => teams.id),
   playerId: uuid('player_id').notNull().references(() => players.id),
@@ -88,7 +80,7 @@ export const appearances = pgTable('appearances', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
-  seasonGameweekIdx: index('appearances_season_gameweek_idx').on(table.seasonId, table.gameweekId),
+  seasonIdx: index('appearances_season_idx').on(table.seasonId),
   matchIdx: index('appearances_match_idx').on(table.matchId),
   playerIdx: index('appearances_player_idx').on(table.playerId),
   teamIdx: index('appearances_team_idx').on(table.teamId),
