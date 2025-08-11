@@ -1,0 +1,102 @@
+[
+  {
+    "teamName": "Arsenal",
+    "teamId": "3fd0babd-d11a-4594-a593-f7d399c7259e",
+    "totalExpectedCleans": 19
+  },
+  {
+    "teamName": "Liverpool",
+    "teamId": "2179998e-1a8d-44ca-a94b-b3cec69d8b2a",
+    "totalExpectedCleans": 18
+  },
+  {
+    "teamName": "Newcastle United",
+    "teamId": "05562990-21a5-419b-bcf1-f1e70f56dd9a",
+    "totalExpectedCleans": 13
+  },
+  {
+    "teamName": "Manchester City",
+    "teamId": "a5aa7a1d-21be-4081-a07d-84baa411679e",
+    "totalExpectedCleans": 12
+  },
+  {
+    "teamName": "Crystal Palace",
+    "teamId": "8276af4a-0f47-4a2f-95b0-269e0ea2a264",
+    "totalExpectedCleans": 11
+  },
+  {
+    "teamName": "Manchester United",
+    "teamId": "82864c1e-970e-4118-bc19-454fa3accd7d",
+    "totalExpectedCleans": 11
+  },
+  {
+    "teamName": "Aston Villa",
+    "teamId": "354fcdeb-7f6d-4eef-a0b4-0c1834b2d149",
+    "totalExpectedCleans": 9
+  },
+  {
+    "teamName": "Bournemouth",
+    "teamId": "d087d305-6db6-49cf-893b-a64741cc1311",
+    "totalExpectedCleans": 9
+  },
+  {
+    "teamName": "Brighton and Hove Albion",
+    "teamId": "741500d1-a4b3-43cf-9c6f-f6a05cbbce30",
+    "totalExpectedCleans": 9
+  },
+  {
+    "teamName": "Chelsea",
+    "teamId": "d356555a-8070-47d2-876f-91dd4ec637b8",
+    "totalExpectedCleans": 9
+  },
+  {
+    "teamName": "Fulham",
+    "teamId": "e47cc784-d8dc-4704-a9dc-6ce27275d0bf",
+    "totalExpectedCleans": 9
+  },
+  {
+    "teamName": "Nottingham Forest",
+    "teamId": "ca988306-4fdd-4991-ab61-ba283713db74",
+    "totalExpectedCleans": 9
+  },
+  {
+    "teamName": "Everton",
+    "teamId": "03f39134-a94f-4491-a095-b4a72fd8f776",
+    "totalExpectedCleans": 8
+  },
+  {
+    "teamName": "West Ham",
+    "teamId": "af44ad34-1c11-4743-a744-25d3898d84cc",
+    "totalExpectedCleans": 6
+  },
+  {
+    "teamName": "Wolverhampton Wanderers",
+    "teamId": "3d402f6b-9755-4b21-aecc-5136cca8b8f5",
+    "totalExpectedCleans": 5
+  },
+  {
+    "teamName": "Southampton",
+    "teamId": "d101a021-7dc7-44d2-a5dd-8219bd62b6af",
+    "totalExpectedCleans": 3
+  },
+  {
+    "teamName": "Tottenham Hotspur",
+    "teamId": "cdc87a0c-96b7-44fc-9be1-c530b38b5d23",
+    "totalExpectedCleans": 3
+  },
+  {
+    "teamName": "Brentford",
+    "teamId": "f5774ff8-c9f3-4e7c-9ead-a823443d72c3",
+    "totalExpectedCleans": 2
+  },
+  {
+    "teamName": "Ipswich Town",
+    "teamId": "09d90384-16ef-46a3-b4ad-7f5901331169",
+    "totalExpectedCleans": 2
+  },
+  {
+    "teamName": "Leicester",
+    "teamId": "dea194af-b956-418d-92cb-4d948ad2c8b3",
+    "totalExpectedCleans": 1
+  }
+]

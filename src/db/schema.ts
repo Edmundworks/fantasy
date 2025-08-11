@@ -85,3 +85,18 @@ export const appearances = pgTable('appearances', {
   playerIdx: index('appearances_player_idx').on(table.playerId),
   teamIdx: index('appearances_team_idx').on(table.teamId),
 }));
+
+// Standings table
+export const standings = pgTable('standings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  seasonId: uuid('season_id').notNull().references(() => seasons.id),
+  season: varchar('season', { length: 50 }).notNull(),
+  teamId: uuid('team_id').notNull().references(() => teams.id),
+  teamName: varchar('team_name', { length: 255 }).notNull(),
+  expectedCleans: integer('expected_cleans').notNull().default(0),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updated_at: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  standingsSeasonIdx: index('standings_season_idx').on(table.seasonId),
+  standingsTeamIdx: index('standings_team_idx').on(table.teamId),
+}));
