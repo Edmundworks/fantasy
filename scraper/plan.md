@@ -1,6 +1,8 @@
-create DB of players from players_from_appearances.json
+create DB of players from players_from_appearances.json - done
 
-populate appearances from appearance_data_normalizedjson 
+populate appearances from appearance_data_normalized.json 
+
+do expected cleans
 
 calculate expected non blanks - 
 

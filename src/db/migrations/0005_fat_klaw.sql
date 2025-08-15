@@ -1,0 +1,1 @@
+ALTER TABLE "players" ADD COLUMN "price" numeric(4, 1);

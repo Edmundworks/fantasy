@@ -29,6 +29,27 @@
       "when": 1754873555824,
       "tag": "0003_amazing_azazel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1755220168303,
+      "tag": "0004_strange_doctor_spectrum",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1755258452407,
+      "tag": "0005_fat_klaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755262909004,
+      "tag": "0006_smiling_wolverine",
+      "breakpoints": true
     }
   ]
 }

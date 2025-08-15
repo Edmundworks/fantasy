@@ -26,12 +26,15 @@ export const seasons = pgTable('seasons', {
 // Players table
 export const players = pgTable('players', {
   id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
   teamId: uuid('team_id').notNull().references(() => teams.id),
   position: varchar('position', { length: 50 }).notNull(), // e.g., "Forward", "Midfielder", "Defender", "Goalkeeper"
   fplPosition: varchar('fpl_position', { length: 10 }).notNull(), // e.g., "FWD", "MID", "DEF", "GK"
+  price: decimal('price', { precision: 4, scale: 1 }), // FPL price, e.g., 4.0, 10.5
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
+  nameIdx: index('players_name_idx').on(table.name),
   teamIdx: index('players_team_idx').on(table.teamId),
   positionIdx: index('players_position_idx').on(table.position),
   fplPositionIdx: index('players_fpl_position_idx').on(table.fplPosition),
@@ -99,4 +102,28 @@ export const standings = pgTable('standings', {
 }, (table) => ({
   standingsSeasonIdx: index('standings_season_idx').on(table.seasonId),
   standingsTeamIdx: index('standings_team_idx').on(table.teamId),
+}));
+
+// 2024-25 Players summary table
+export const players2425 = pgTable('2425players', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  playerId: uuid('player_id').notNull().references(() => players.id),
+  teamId: uuid('team_id').notNull().references(() => teams.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  teamName: varchar('team_name', { length: 255 }).notNull(),
+  fplPosition: varchar('fpl_position', { length: 10 }).notNull(),
+  price: decimal('price', { precision: 4, scale: 1 }),
+  inSquad: integer('in_squad').notNull().default(0), // Total times in squad
+  totalStarts: integer('total_starts').notNull().default(0), // Total times started
+  totalMinutes: integer('total_minutes').notNull().default(0), // Sum of minutes
+  totalExpectedNonBlanks: integer('total_expected_non_blanks').notNull().default(0), // Count of expected non-blanks
+  nonBlanksPerSquad: decimal('non_blanks_per_squad', { precision: 4, scale: 3 }).default('0'), // Expected non-blanks / times in squad
+  nonBlanksPerStart: decimal('non_blanks_per_start', { precision: 4, scale: 3 }).default('0'), // Expected non-blanks / starts
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updated_at: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  playerIdx: index('2425players_player_idx').on(table.playerId),
+  teamIdx: index('2425players_team_idx').on(table.teamId),
+  positionIdx: index('2425players_position_idx').on(table.fplPosition),
+  priceIdx: index('2425players_price_idx').on(table.price),
 }));
